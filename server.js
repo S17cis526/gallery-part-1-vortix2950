@@ -13,10 +13,11 @@ var fs = require('fs');
 var port = 3000;
 var template= require('./template')
 /* load cached files */
+var staticFiles =require('./static');
 var config = JSON.parse(fs.readFileSync('config.json'));
 var stylesheet = fs.readFileSync('public/gallery.css');
-var sribt=fs.readFileSync('public/gallery.js')
-temolate.loadDIr('templates');
+var script=fs.readFileSync('public/gallery.js');
+template.loadDir('template');
 /** @function getImageNames
  * Retrieves the filenames for all images in the
  * /images directory and supplies them to the callback.
@@ -163,7 +164,11 @@ function handleRequest(req, res) {
       res.setHeader('Content-Type','text/javascribt');
       res.end(script);
       break;
+
     default:
+    if(staticFiles.isCached(req.url)){
+      staticFiles:type
+    }
       serveImage(req.url, req, res);
   }
 }
