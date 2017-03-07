@@ -7,17 +7,24 @@
 
 /* global variables */
 var multipart = require('./multipart');
+var template = require('./template');
+var staticFiles = require('./static');
 var http = require('http');
 var url = require('url');
 var fs = require('fs');
-var port = 3000;
-var template= require('./template')
+var port = 4000;
+
 /* load cached files */
-var staticFiles =require('./static');
 var config = JSON.parse(fs.readFileSync('config.json'));
 var stylesheet = fs.readFileSync('public/gallery.css');
-var script=fs.readFileSync('public/gallery.js');
-template.loadDir('template');
+var script = fs.readFileSync('public/gallery.js');
+
+/* load public directory */
+staticFiles.loadDir('public');
+
+/* load templates */
+template.loadDir('templates');
+
 /** @function getImageNames
  * Retrieves the filenames for all images in the
  * /images directory and supplies them to the callback.
@@ -52,10 +59,10 @@ function imageNamesToTags(fileNames) {
  * gallery images.
  */
 function buildGallery(imageTags) {
-
-  return template.render("gallery.html",{title:config.title,
-  imageTags:imageNamesToTags(imageTags).join(''),});
-
+  return template.render('gallery.html', {
+    title: config.title,
+    imageTags: imageNamesToTags(imageTags).join('')
+  });
 }
 
 /** @function serveGallery
@@ -156,20 +163,13 @@ function handleRequest(req, res) {
         uploadImage(req, res);
       }
       break;
-    case '/gallery.css':
-      res.setHeader('Content-Type', 'text/css');
-      res.end(stylesheet);
-      break;
-      case'/gallery.js':
-      res.setHeader('Content-Type','text/javascribt');
-      res.end(script);
-      break;
 
     default:
-    if(staticFiles.isCached(req.url)){
-      staticFiles:type
-    }
-      serveImage(req.url, req, res);
+    console.log(req.url);
+      if(staticFiles.isCached('public' + req.url)) {
+        staticFiles.serveFile('public' + req.url, req, res);
+      }
+      else serveImage(req.url, req, res);
   }
 }
 

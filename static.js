@@ -1,65 +1,61 @@
-/**@module static
-*loads and serve static files
-*/
-var fs=require('fs');
-module.exports={
-  loadDir:loadDir,
-  isCached:isCached
+/** @module static
+ * loads and serves static files
+ */
+
+module.exports = {
+  loadDir: loadDir,
+  isCached: isCached,
+  serveFile: serveFile
 }
 
-var files={};
-var fs=require('fs');
+var files = {};
+var fs = require('fs');
 
 function loadDir(directory){
-  fs.readdir(directory){
-    var items =fs.readdirSync(directory);
-    item.forEach(function(item){
-      var path =directory+'/'+item;
-        var stats =fs.statsSync(path);
-        if(stats.isFile()){
-          var parts=path.split('.');
-          var extention=parts[parts.length-1];
-          var type ='application/octet-stream'
-          switch(extention){
-            case'css':
-            type='text/javascript';
-            break;
-            case'js':
-            type='text/javascript';
-            break;
-            case'css':
-            type='text/javascript';
-            break;
-            case'css':
-            type='text/javascript';
-            break;
-
-            case'css':
-            type='text/javascript';
-            break;
-
-          }
-          files[path]=fs.readFileSync(path);
-           contentType:type,
-
-        }
-        if(stats.isDirectory()){
-          loadDir(path);
-        }
-      });
-
-  }
-}
-function serveFile(path,req,res){
-res.statusCode=200;
-res.
-
+  var items = fs.readdirSync(directory);
+  items.forEach(function(item) {
+    var path = directory + '/' + item;
+    var stats = fs.statSync(path);
+    if(stats.isFile()) {
+      var parts = path.split('.');
+      var extension = parts[parts.length-1];
+      var type = 'application/octet-stream';
+      switch(extension) {
+        case 'css':
+          type = 'text/css';
+          break;
+        case 'js':
+          type = 'text/javascript';
+          break;
+        case 'jpeg':
+        case 'jpg':
+          type = 'image/jpeg';
+          break;
+        case 'gif':
+        case 'png':
+        case 'bmp':
+        case 'tiff':
+        case 'svg':
+          type = 'image/' + extension;
+          break;
+      }
+      files[path] = {
+        contentType: type,
+        data: fs.readFileSync(path)
+      };
+    }
+    if(stats.isDirectory()){
+      loadDir(path);
+    }
+  });
 }
 
-
-function isCached(path){
-  return files[path] !=undefined;
+function isCached(path) {
+  return files[path] != undefined;
 }
-function serveFile(path,req,res){
-  res.end(files[path]);
+
+function serveFile(path, req, res) {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', files[path].contentType);
+  res.end(files[path].data);
 }
